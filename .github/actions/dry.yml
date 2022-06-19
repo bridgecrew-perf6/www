@@ -1,0 +1,13 @@
+
+on: workflow_call
+
+jobs:
+  dry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - uses: rlespinasse/github-slug-action@v3.x
+      - name: Set STAGE variable in environment for next steps
+        run: echo "STAGE=pr-${{ github.event.number }}-${{ env.GITHUB_HEAD_REF_SLUG }}" >> $GITHUB_ENV

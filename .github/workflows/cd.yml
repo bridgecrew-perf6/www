@@ -12,34 +12,25 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
     - name: Create Deployment
       uses: bobheadxi/deployments@v1
       id: deployment
       with:
         step: start
-        token: ${{ github.token }}
         env: aws
+
+    - uses: ./.github/actions/setup-aws
+      secrets: inherit
 
     - uses: actions/checkout@v3
 
-    - name: Setup Hugo
-      uses: peaceiris/actions-hugo@v2
+    - uses: teaxyz/setup@v0
       with:
-        hugo-version: 'latest'
-
-    - name: Build
-      run: hugo -s src -d ../public --minify
+        action: build
 
     ## means s3 sync will only sync things we need sync’d
     - uses: chetan/git-restore-mtime-action@v1
-
-    - uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
 
     # cache-control of 10 mins because we *need* to be able to update
     # this and have people see the results can be fixed well with a static site builder
@@ -61,13 +52,11 @@ jobs:
           --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} \
           --paths '/*'
 
-
     - name: Seal Deployment
       uses: bobheadxi/deployments@v1
       if: always()
       with:
         step: finish
-        token: ${{ github.token }}
         status: ${{ job.status }}
         deployment_id: ${{ steps.deployment.outputs.deployment_id }}
         env: ${{ steps.deployment.outputs.env }}
