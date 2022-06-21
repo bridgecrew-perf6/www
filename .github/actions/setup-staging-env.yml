@@ -2,7 +2,7 @@
 on: workflow_call
 
 jobs:
-  dry:
+  setup-staging-env:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v3
@@ -11,3 +11,5 @@ jobs:
       - uses: rlespinasse/github-slug-action@v3.x
       - name: Set STAGE variable in environment for next steps
         run: echo "STAGE=pr-${{ github.event.number }}-${{ env.GITHUB_HEAD_REF_SLUG }}" >> $GITHUB_ENV
+      - uses: ./.github/actions/setup-aws
+        secrets: inherit

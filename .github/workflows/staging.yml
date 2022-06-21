@@ -19,9 +19,7 @@ jobs:
         transient: true
 
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/dry
-      secrets: inherit
-    - uses: ./.github/actions/setup-aws
+    - uses: ./.github/actions/setup-staging-env
       secrets: inherit
 
     - uses: teaxyz/setup@v0
